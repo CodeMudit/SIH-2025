@@ -1,0 +1,8 @@
+fastapi  
+uvicorn
+motor
+certifi
+passlib[bcrypt]  
+pydantic 
+reuests 
+jinja2
