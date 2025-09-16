@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 {{ t.title }} - Farmer's Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}" type="image/x-icon">
+
+</head>
+<body class="bg-gradient-to-br from-green-50 to-yellow-50 min-h-screen font-sans">
+    <!-- Header -->
+    <header class="bg-green-800 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-seedling mr-2 animate-spin-slow"></i>
+                {{ t.title }}
+            </h1>
+            <div class="flex space-x-2">
+                <button onclick="toggleLang('en')" class="px-3 py-1 bg-white text-green-800 rounded">EN</button>
+                <button onclick="toggleLang('hi')" class="px-3 py-1 bg-white text-green-800 rounded">हिं</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <main class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Weather Card -->
+            <div class="bg-white rounded-lg shadow-md p-4 animate-fade-in-up card-hover" id="weather-card">
+                <h2 class="text-lg font-semibold mb-2 flex items-center">
+                    <i class="fas fa-cloud-sun mr-2 text-blue-500"></i>
+                    {{ t.weather_title | default("Weather") }}
+                </h2>
+                <div id="weather-content" class="text-center">
+                    <p class="text-gray-600">{{ t.loading_weather | default("Select a state to see weather") }}</p>
+                </div>
+            </div>
+
+            <!-- Market Prices Card -->
+            <div class="bg-white rounded-lg shadow-md p-4 animate-fade-in-up delay-100 card-hover" id="market-card">
+                <h2 class="text-lg font-semibold mb-2 flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-green-500"></i>
+                    {{ t.market_title | default("Market Prices") }}
+                </h2>
+                <div id="market-content">
+                    <ul class="space-y-1">
+                        <li><strong>Wheat:</strong> ₹2,200/quintal</li>
+                        <li><strong>Rice:</strong> ₹1,800/quintal</li>
+                        <li><strong>Maize:</strong> ₹1,600/quintal</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- News Card -->
+            <div class="bg-white rounded-lg shadow-md p-4 animate-fade-in-up delay-200 card-hover" id="news-card">
+                <h2 class="text-lg font-semibold mb-2 flex items-center">
+                    <i class="fas fa-newspaper mr-2 text-red-500"></i>
+                    {{ t.news_title | default("Crop News") }}
+                </h2>
+                <div id="news-content">
+                    <ul class="space-y-1 text-sm">
+                        <li class="truncate">New wheat variety boosts yield by 20%</li>
+                        <li class="truncate">Monsoon rains impact rice prices</li>
+                        <li class="truncate">Government subsidy for fertilizers announced</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Stats Card -->
+            <div class="bg-white rounded-lg shadow-md p-4 animate-fade-in-up delay-300">
+                <h2 class="text-lg font-semibold mb-2 flex items-center">
+                    <i class="fas fa-chart-bar mr-2 text-purple-500"></i>
+                    {{ t.stats_title | default("Quick Stats") }}
+                </h2>
+                <div class="space-y-2">
+                    <p>Analyses Today: 5</p>
+                    <p>Avg Irrigation Need: 25mm</p>
+                    <p>Top Crop: Wheat</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Pages (Toggled via JS) -->
+        <div id="full-pages" class="hidden">
+            <!-- Weather Page -->
+            <div id="weather-page" class="py-8">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-4 text-center">{{ t.weather_title | default("Weather Forecast") }}</h2>
+                    <select id="state-select" class="w-full p-2 border rounded mb-4">
+                        <option value="punjab">Punjab</option>
+                        <option value="haryana">Haryana</option>
+                        <!-- Add more states -->
+                    </select>
+                    <div id="weather-forecast" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Dynamic weather cards -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Prices Page -->
+            <div id="market-page" class="py-8">
+                <div class="max-w-6xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-4 text-center">{{ t.market_title | default("Crop Market Prices") }}</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-green-100">
+                                    <th class="border border-gray-300 p-2">{{ t.crop_label | default("Crop") }}</th>
+                                    <th class="border border-gray-300 p-2">{{ t.min_price_label | default("Min Price") }} (₹/Quintal)</th>
+                                    <th class="border border-gray-300 p-2">{{ t.max_price_label | default("Max Price") }} (₹/Quintal)</th>
+                                    <th class="border border-gray-300 p-2">{{ t.modal_price_label | default("Modal Price") }} (₹/Quintal)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="market-table-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Page -->
+            <div id="news-page" class="py-8">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-4 text-center">{{ t.news_title | default("Crop News") }}</h2>
+                    <div id="news-list" class="space-y-4">
+                        <!-- Dynamic news cards -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Button (FAB) -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="fab-btn" class="w-16 h-16 bg-green-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl animate-bounce-slow hover:bg-green-700 transition-all">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div id="fab-menu" class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl p-2 hidden w-48">
+            <button onclick="openModal('chatbot')" class="w-full text-left p-3 hover:bg-gray-100 rounded flex items-center">
+                <i class="fas fa-comments mr-2 text-blue-500"></i> {{ t.chatbot_label | default("Chatbot") }}
+            </button>
+            <button onclick="openModal('image')" class="w-full text-left p-3 hover:bg-gray-100 rounded flex items-center">
+                <i class="fas fa-camera mr-2 text-green-500"></i> {{ t.image_label | default("Image Analysis") }}
+            </button>
+            <button onclick="openModal('calculator')" class="w-full text-left p-3 hover:bg-gray-100 rounded flex items-center">
+                <i class="fas fa-calculator mr-2 text-purple-500"></i> {{ t.calculator_label | default("Micro Calculator") }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="chatbot-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-4">{{ t.chatbot_label | default("Chatbot") }}</h3>
+            <div id="chatbot-content">
+                <p>{{ t.chatbot_desc | default("Text or voice chat for advice.") }}</p>
+                <button onclick="openVoiceChat()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">{{ t.voice_chat_btn | default("Voice Chat") }}</button>
+                <textarea id="chat-prompt" placeholder="{{ t.chat_prompt_placeholder | default('Type your query...') }}" class="w-full p-2 border rounded mt-2"></textarea>
+                <button onclick="sendTextChat()" class="mt-2 bg-green-500 text-white px-4 py-2 rounded">{{ t.send_btn | default("Send") }}</button>
+            </div>
+            <button onclick="closeModal('chatbot')" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">{{ t.close_btn | default("Close") }}</button>
+        </div>
+    </div>
+
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-4">{{ t.image_label | default("Image Analysis") }}</h3>
+            <input type="file" id="image-file" accept="image/*" class="w-full p-2 border rounded">
+            <button onclick="analyzeImage()" class="mt-2 bg-green-500 text-white px-4 py-2 rounded">{{ t.analyze_btn | default("Analyze") }}</button>
+            <div id="image-result" class="mt-4"></div>
+            <button onclick="closeModal('image')" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">{{ t.close_btn | default("Close") }}</button>
+        </div>
+    </div>
+
+    <div id="calculator-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-4">{{ t.calculator_label | default("Micro Calculator") }}</h3>
+            <select id="crop-type" class="w-full p-2 border rounded mb-2">
+                <option value="wheat">{{ t.wheat | default("Wheat") }}</option>
+                <option value="rice">{{ t.rice | default("Rice") }}</option>
+                <!-- Add more crops -->
+            </select>
+            <select id="growth-stage" class="w-full p-2 border rounded mb-2">
+                <option value="initial">{{ t.initial_stage | default("Initial") }}</option>
+                <option value="mid">{{ t.mid_stage | default("Mid") }}</option>
+                <option value="late">{{ t.late_stage | default("Late") }}</option>
+            </select>
+            <select id="state" class="w-full p-2 border rounded mb-2">
+                <option value="punjab">{{ t.punjab | default("Punjab") }}</option>
+                <option value="haryana">{{ t.haryana | default("Haryana") }}</option>
+                <!-- Add more states -->
+            </select>
+            <select id="lang" class="w-full p-2 border rounded mb-2">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+            </select>
+            <button onclick="calculateAdvice()" class="bg-purple-500 text-white px-4 py-2 rounded">{{ t.calculate_btn | default("Calculate") }}</button>
+            <div id="calculator-result" class="mt-4"></div>
+            <button onclick="closeModal('calculator')" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">{{ t.close_btn | default("Close") }}</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+</body>
+</html>

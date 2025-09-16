@@ -1,0 +1,95 @@
+/* Farmer-Themed Styles with Animations */
+:root {
+    --earth-brown: #8B4513;
+    --crop-green: #228B22;
+    --sun-yellow: #FFD700;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+
+.animate-bounce-slow {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Weather Icon Rotation on Hover */
+.fa-cloud-sun:hover {
+    animation: rotate 1s ease-in-out;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Card Hover Effects */
+.card-hover:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Farmer Background Pattern */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="%23FFD700" opacity="0.1"/><circle cx="80" cy="80" r="3" fill="%23228B22" opacity="0.1"/></svg>');
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Modal Styles */
+.modal {
+    transition: opacity 0.3s ease;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Responsive FAB */
+@media (max-width: 768px) {
+    #fab-btn {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    #fab-menu {
+        right: 1rem;
+    }
+}

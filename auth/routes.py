@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 import traceback
-from auth.models import RegisterUser, LoginUser
+from auth.models import RegisterUser, LoginUser, UserProfile, Location
 from auth.database import users_collection, pwd_context, user_helper
+from location_detector.location import get_location_from_coords
 
 router = APIRouter()
 
@@ -25,6 +26,14 @@ async def register(user: RegisterUser):
         hashed_pw = pwd_context.hash(user.password)
 
         new_user = user.dict()
+        if user.lat and user.lon:
+            location = get_location_from_coords(user.lat, user.lon)
+            new_user["location"] = {
+                "lat": user.lat,
+                "lon": user.lon,
+                "state": location["state"],
+                "district": location["district"]
+            }
         new_user["password"] = hashed_pw
     
 
@@ -48,4 +57,37 @@ async def login(user: LoginUser):
         return {"message": f"Welcome {existing_user['name']}, login successful!"}
     except Exception as e:
         print(f"Error in /login: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.get("/profile/{phone}", response_model=UserProfile)
+async def get_profile(phone: str):
+    try:
+        user = await users_collection.find_one({"phone": phone})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        profile = {
+            "name": user.get("name"),
+            "phone": user.get("phone"),
+            "email": user.get("email"),
+            "land_size": user.get("land_size"),
+            "location": user.get("location"),
+        }
+
+        # Normalize location into expected shape if present
+        if profile["location"] and isinstance(profile["location"], dict):
+            loc = profile["location"]
+            profile["location"] = Location(
+                lat=loc.get("lat"),
+                lon=loc.get("lon"),
+                state=loc.get("state"),
+                district=loc.get("district"),
+            )
+
+        return UserProfile(**profile)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in /profile/{{phone}}: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

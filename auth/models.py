@@ -2,12 +2,13 @@
 from pydantic import BaseModel, EmailStr, validator, Field
 from typing import Optional
 class RegisterUser(BaseModel):
-    name: str = Field(...,min_length=1, max_length=100)
-    phone: str = Field(...,min_length=10, max_length=10)
+    name: str = Field(..., min_length=1, max_length=100)
+    phone: str = Field(..., min_length=10, max_length=10)
     email: Optional[EmailStr] = None
-    password: str = Field(...,min_length=8)
-    location: str = Field(...,min_length=1)
-    land_size: float = Field(...,gt=0)
+    password: str = Field(..., min_length=8)
+    lat: float = Field(..., ge=-90, le=90)
+    lon: float = Field(..., ge=-180, le=180)
+    land_size: float = Field(..., gt=0)
 
     @validator("phone")
     def must_be_ten_digits(cls, v):
@@ -48,3 +49,17 @@ class LoginUser(BaseModel):
     phone: str
     password: str
 
+
+class Location(BaseModel):
+    lat: float
+    lon: float
+    state: Optional[str] = None
+    district: Optional[str] = None
+
+
+class UserProfile(BaseModel):
+    name: str
+    phone: str
+    email: Optional[EmailStr] = None
+    location: Optional[Location] = None
+    land_size: Optional[float] = None
