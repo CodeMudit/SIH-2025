@@ -9,35 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from news.routes import router as news_router
 
 
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
 
 app = FastAPI()
-
-# Serve React build
-app.mount("/assets", StaticFiles(directory="frontend_dist/assets"), name="assets")
-
-@app.get("/favicon.ico")
-async def favicon():
-    fav = os.path.join("frontend_dist", "favicon.ico")
-    if os.path.exists(fav):
-        return FileResponse(fav)
-    return FileResponse(os.path.join("frontend_dist", "assets", "favicon.ico"))
-
-@app.get("/")
-async def root():
-    return FileResponse(os.path.join("frontend_dist", "index.html"))
-
-@app.get("/{full_path:path}")
-async def serve_react(full_path: str):
-    requested = os.path.join("frontend_dist", full_path)
-    if os.path.isfile(requested):
-        return FileResponse(requested)
-    return FileResponse(os.path.join("frontend_dist", "index.html"))
-
-
 
 app.mount("/uploadvoices", StaticFiles(directory="uploadvoices"), name="uploadvoices")
 app.mount("/uploadimages", StaticFiles(directory="uploadimages"), name="uploadimages")
@@ -57,6 +30,7 @@ app.include_router(chatbot_router, prefix="/chat", tags=["chat"])
 app.include_router(weather_router, prefix="/weather", tags=["weather"])
 app.include_router(image_router, prefix="/image-analysis", tags=["image-analysis"])
 app.include_router(micro_router, prefix="/micro-calculator", tags=["calculator"])
+
 # Health check endpoint
 
 @app.get("/")
