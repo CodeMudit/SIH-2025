@@ -6,7 +6,7 @@ from langdetect import detect, DetectorFactory
 # Ensure consistent language detection
 DetectorFactory.seed = 0
 
-API_KEY = "AIzaSyCp4awTqgjl7hUfY_iecS-CbfG81_Aa784"
+API_KEY = "YOUR_API_KEY"
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={API_KEY}"
 
 def get_system_instruction(response_language):
